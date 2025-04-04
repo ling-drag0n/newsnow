@@ -6,7 +6,7 @@ function ThemeToggle() {
     <li onClick={toggleDark}>
       <span className={$("inline-block", isDark ? "i-ph-moon-stars-duotone" : "i-ph-sun-dim-duotone")} />
       <span>
-        {isDark ? "黑暗模式" : "白天模式"}
+        {isDark ? "浅色模式" : "深色模式"}
       </span>
     </li>
   )
@@ -26,7 +26,7 @@ export function Menu() {
                   className="h-6 w-6 rounded-full bg-cover"
                   style={
                     {
-                      backgroundImage: `url(${userInfo.avatar})`,
+                      backgroundImage: `url(${userInfo.avatar}&s=24)`,
                     }
                   }
                 >
