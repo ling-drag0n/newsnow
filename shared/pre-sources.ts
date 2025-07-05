@@ -57,6 +57,18 @@ export const originSources = {
     title: "今日最热",
     home: "https://coolapk.com",
   },
+  "mktnews": {
+    name: "MKTNews",
+    column: "finance",
+    home: "https://mktnews.net",
+    color: "indigo",
+    interval: Time.Realtime,
+    sub: {
+      flash: {
+        title: "快讯",
+      },
+    },
+  },
   "wallstreetcn": {
     name: "华尔街见闻",
     color: "blue",
@@ -102,8 +114,11 @@ export const originSources = {
   },
   "hupu": {
     name: "虎扑",
-    disable: true,
     home: "https://hupu.com",
+    column: "china",
+    title: "主干道热帖",
+    type: "hottest",
+    color: "red",
   },
   "tieba": {
     name: "百度贴吧",
@@ -139,8 +154,6 @@ export const originSources = {
   "sputniknewscn": {
     name: "卫星通讯社",
     color: "orange",
-    // cloudflare pages cannot access
-    disable: "cf",
     column: "world",
     home: "https://sputniknews.cn",
   },
@@ -166,6 +179,7 @@ export const originSources = {
         title: "Windows 资源",
         type: "realtime",
         interval: Time.Fast,
+        disable: true,
       },
     },
   },
@@ -322,7 +336,7 @@ export const originSources = {
     column: "tech",
     color: "slate",
     home: "https://linux.do/",
-    disable: "cf",
+    disable: true,
     sub: {
       latest: {
         title: "最新",
@@ -340,8 +354,8 @@ export const originSources = {
     name: "果核剥壳",
     column: "china",
     color: "yellow",
-    disable: "cf",
     home: "https://www.ghxi.com/",
+    disable: true,
   },
   "smzdm": {
     name: "什么值得买",
@@ -349,6 +363,7 @@ export const originSources = {
     color: "red",
     type: "hottest",
     home: "https://www.smzdm.com",
+    disable: true,
   },
   "nowcoder": {
     name: "牛客",
@@ -371,6 +386,33 @@ export const originSources = {
     type: "hottest",
     home: "https://juejin.cn",
   },
+  "ifeng": {
+    name: "凤凰网",
+    column: "china",
+    color: "red",
+    type: "hottest",
+    title: "热点资讯",
+    home: "https://www.ifeng.com",
+  },
+  "chongbuluo": {
+    name: "虫部落",
+    column: "china",
+    color: "green",
+    home: "https://www.chongbuluo.com",
+    sub: {
+      latest: {
+        title: "最新",
+        interval: Time.Common,
+        home: "https://www.chongbuluo.com/forum.php?mod=guide&view=newthread",
+      },
+      hot: {
+        title: "最热",
+        type: "hottest",
+        interval: Time.Common,
+        home: "https://www.chongbuluo.com/forum.php?mod=guide&view=hot",
+      },
+    },
+  },
 } as const satisfies Record<string, OriginSource>
 
 export function genSources() {
@@ -390,29 +432,40 @@ export function genSources() {
     if (source.sub && Object.keys(source.sub).length) {
       Object.entries(source.sub).forEach(([subId, subSource], i) => {
         if (i === 0) {
-          _.push([id, {
-            redirect: `${id}-${subId}`,
-            ...parent,
-            ...subSource,
-          }] as [any, Source])
+          _.push([
+            id,
+            {
+              redirect: `${id}-${subId}`,
+              ...parent,
+              ...subSource,
+            },
+          ] as [any, Source])
         }
-        _.push([`${id}-${subId}`, { ...parent, ...subSource }] as [any, Source])
+        _.push([`${id}-${subId}`, { ...parent, ...subSource }] as [
+          any,
+          Source,
+        ])
       })
     } else {
-      _.push([id, {
-        title: source.title,
-        ...parent,
-      }])
+      _.push([
+        id,
+        {
+          title: source.title,
+          ...parent,
+        },
+      ])
     }
   })
 
-  return typeSafeObjectFromEntries(_.filter(([_, v]) => {
-    if (v.disable === "cf" && process.env.CF_PAGES) {
-      return false
-    } else if (v.disable === true) {
-      return false
-    } else {
-      return true
-    }
-  }))
+  return typeSafeObjectFromEntries(
+    _.filter(([_, v]) => {
+      if (v.disable === "cf" && process.env.CF_PAGES) {
+        return false
+      } else if (v.disable === true) {
+        return false
+      } else {
+        return true
+      }
+    }),
+  )
 }
